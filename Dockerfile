@@ -2,30 +2,24 @@ FROM resin/armv7hf-debian-qemu
 
 RUN [ "cross-build-start" ]
 
+RUN export NPROC=$(nproc --all)
 # build tools
 RUN apt-get update && apt-get install -y \
 	build-essential \
 	cmake \
-	pkg-config
-
-# ccmake curses (make our life easier to select options for CMAKE)
-RUN apt-get install -y \
+	pkg-config \
+	wget \
+    unzip \
 	cmake-curses-gui
 
-
 # Image format support:
-
 # JPEG, TIFF, JPEG2000, PNG
+# GUI Framework: gtk GUI framework
 RUN apt-get install -y \
 	libjpeg-dev \
 	libtiff5-dev \
 	libjasper-dev \
-	libpng12-dev
-
-# GUI Framework:
-
-# gtk GUI framework
-RUN apt-get install -y \
+	libpng12-dev \
 	libgtk2.0-dev
 
 # OpenGL extension to GTK (optional)
@@ -33,25 +27,19 @@ RUN apt-get install -y \
 	libgtkglext1-dev
 
 # Video Driver
-
 # video4linux device driver for video capture
 RUN apt-get install -y \
-	libv4l-dev
-
-# other optional v4l stuff
-RUN apt-get install -y \
+	libv4l-dev \
 	libv4l-0 \
 	v4l-utils
 
 # AUDIO / VIDEO CODECS:
 # ffmpeg libraries (optional but recommended)
+# xvid and x264 codecs (optional)
 RUN apt-get install -y \
 	libavcodec-dev \
 	libavformat-dev \
-	libswscale-dev
-
-# xvid and x264 codecs (optional)
-RUN apt-get install -y \
+	libswscale-dev \
 	libxvidcore-dev \
 	libx264-dev
 
@@ -60,16 +48,15 @@ RUN apt-get install -y \
 #By default libjpeg-turbo will install into /opt/libjpeg-turbo. You may install to a different directory by
 # passing the --prefix option to the configure script.
 # However, the remainder of these instructions will assume that libjpeg-turbo was installed in its default location.
-RUN apt-get install -y \
-	wget
 
-RUN wget http://sourceforge.net/projects/libjpeg-turbo/files/1.3.0/libjpeg-turbo-1.3.0.tar.gz \
+RUN mkdir -p /home/code/ \
+	&& wget http://sourceforge.net/projects/libjpeg-turbo/files/1.3.0/libjpeg-turbo-1.3.0.tar.gz \
 	&& tar xzvf libjpeg-turbo-1.3.0.tar.gz \
 	&& cd libjpeg-turbo-1.3.0 \
 	&& mkdir build \
 	&& cd build \
 	&& ../configure CPPFLAGS="-O3 -pipe -fPIC -mfpu=neon -mfloat-abi=hard" \
-	&& make -j33 \
+	&& make -j${NPROC} \
 	&& make install
 
 #RUN mkdir -p /usr/include/ffmpeg \
@@ -78,7 +65,9 @@ RUN wget http://sourceforge.net/projects/libjpeg-turbo/files/1.3.0/libjpeg-turbo
 #	&& ln -s /usr/include/libavresample/* /usr/include/ffmpeg/
 
 # Audio MP3, AAC encoding codecs (optional)
-#sudo apt-get install -y libmp3lame-dev libfaac-dev
+RUN apt-get install -y \
+    libmp3lame-dev
+    #libfaac-dev
 
 # gstreamer (optional) multimedia framework
 RUN apt-get install -y \
@@ -150,11 +139,7 @@ RUN apt-get install -y \
 
 # Get OpenCV source and contrib:
 # Download OpenCV 3.1.0 and unpack it
-RUN apt-get install -y \
-	unzip
-
-RUN mkdir -p /home/code/ \
-	&& cd /home/code/ \
+RUN cd /home/code/ \
 	&& wget -O opencv.zip https://github.com/opencv/opencv/archive/3.1.0.zip \
 	&& unzip opencv.zip \
 	&& rm opencv.zip
@@ -182,7 +167,7 @@ RUN cd /home/code/ \
     -D BUILD_JPEG=OFF \
 	-D JPEG_INCLUDE_DIR=/opt/libjpeg-turbo/include/ \
     -D JPEG_LIBRARY=/opt/libjpeg-turbo/lib/libjpeg.a \
-	-D BUILD_EXAMPLES=ON \
+	-D BUILD_EXAMPLES=OFF \
 	-D BUILD_DOCS=OFF \
     -D ENABLE_VFPV3=ON \
     -D BUILD_TESTS=OFF \
@@ -213,14 +198,8 @@ RUN cd /home/code/ \
 	../opencv-3.1.0
 
 RUN cd /home/code/build \
-	&& make -j33
-
-#RUN cd /home/code/build \
-#	&& make -j33 package
-
-RUN cd /home/code/build \
-	&& make -j33 install
-
-RUN rm -rf /home/code/
+	&& make -j${NPROC} \
+	&& make -j${NPROC} package \
+	&& make -j${NPROC} install
 
 RUN [ "cross-build-end" ]
