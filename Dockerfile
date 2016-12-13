@@ -156,19 +156,19 @@ RUN cd /home/code/ \
 
 #cd ~/opencv-3.1.0/
 RUN cd /home/code/ \
-	&& mkdir build \
-	&& cd build \
-	&& cmake -D CMAKE_BUILD_TYPE=RELEASE \
-	-D CMAKE_INSTALL_PREFIX=/usr/local \
-	-D INSTALL_C_EXAMPLES=OFF \
-	-D INSTALL_PYTHON_EXAMPLES=ON \
-	-D OPENCV_EXTRA_MODULES_PATH=../opencv_contrib-3.1.0/modules \
-	-D WITH_JPEG=ON \
+    && mkdir build \
+    && cd build \
+    && cmake -D CMAKE_BUILD_TYPE=RELEASE \
+    -D CMAKE_INSTALL_PREFIX=/usr/local \
+    -D INSTALL_C_EXAMPLES=OFF \
+    -D INSTALL_PYTHON_EXAMPLES=ON \
+    -D OPENCV_EXTRA_MODULES_PATH=../opencv_contrib-3.1.0/modules \
+    -D WITH_JPEG=ON \
     -D BUILD_JPEG=OFF \
-	-D JPEG_INCLUDE_DIR=/opt/libjpeg-turbo/include/ \
+    -D JPEG_INCLUDE_DIR=/opt/libjpeg-turbo/include/ \
     -D JPEG_LIBRARY=/opt/libjpeg-turbo/lib/libjpeg.a \
-	-D BUILD_EXAMPLES=OFF \
-	-D BUILD_DOCS=OFF \
+    -D BUILD_EXAMPLES=OFF \
+    -D BUILD_DOCS=OFF \
     -D ENABLE_VFPV3=ON \
     -D BUILD_TESTS=OFF \
     -D BUILD_OPENEXR=ON \
@@ -195,7 +195,7 @@ RUN cd /home/code/ \
     -D WITH_PNG=ON \
     -D BUILD_FFMPEG=ON \
     -D WITH_FFMPEG=ON \
-	../opencv-3.1.0
+    ../opencv-3.1.0
 
 RUN cd /home/code/build \
 	&& make -j${NPROC} \
