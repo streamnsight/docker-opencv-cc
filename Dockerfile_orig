@@ -69,7 +69,7 @@ RUN wget http://sourceforge.net/projects/libjpeg-turbo/files/1.3.0/libjpeg-turbo
 	&& mkdir build \
 	&& cd build \
 	&& ../configure CPPFLAGS="-O3 -pipe -fPIC -mfpu=neon -mfloat-abi=hard" \
-	&& make \
+	&& make -j33 \
 	&& make install
 
 #RUN mkdir -p /usr/include/ffmpeg \
@@ -82,9 +82,10 @@ RUN wget http://sourceforge.net/projects/libjpeg-turbo/files/1.3.0/libjpeg-turbo
 
 # gstreamer (optional) multimedia framework
 RUN apt-get install -y \
-	libgstreamer0.10-0-dbg \
-	libgstreamer0.10-0 \
-	libgstreamer0.10-dev
+	libgstreamer1.0-0-dbg \
+	libgstreamer1.0-0 \
+	libgstreamer1.0-dev \
+	libgstreamer-plugins-base1.0-dev
 
 # Theora video compression codec (optional, not recommended)
 #sudo apt-get install -y libtheora-dev
@@ -177,13 +178,49 @@ RUN cd /home/code/ \
 	-D INSTALL_C_EXAMPLES=OFF \
 	-D INSTALL_PYTHON_EXAMPLES=ON \
 	-D OPENCV_EXTRA_MODULES_PATH=../opencv_contrib-3.1.0/modules \
-	-D BUILD_EXAMPLES=ON ../opencv-3.1.0
+	-D WITH_JPEG=ON \
+    -D BUILD_JPEG=OFF \
+	-D JPEG_INCLUDE_DIR=/opt/libjpeg-turbo/include/ \
+    -D JPEG_LIBRARY=/opt/libjpeg-turbo/lib/libjpeg.a \
+	-D BUILD_EXAMPLES=ON \
+	-D BUILD_DOCS=OFF \
+    -D ENABLE_VFPV3=ON \
+    -D BUILD_TESTS=OFF \
+    -D BUILD_OPENEXR=ON \
+    -D WITH_1394=OFF \
+    -D WITH_CUDA=OFF \
+    -D WITH_CUBLAS=OFF \
+    -D WITH_CUFFT=OFF \
+    -D WITH_GSTREAMER=ON \
+    -D WITH_GTK=ON \
+    -D WITH_GTK_2_X=ON \
+    -D BUILD_GTK_2_X=ON \
+    -D WITH_OPENCL=ON \
+    -D WITH_OPENCLAMBDABLAS=OFF \
+    -D WITH_OPENCLAMDFFT=OFF \
+    -D WITH_OPENCL_SVM=OFF \
+    -D WITH_V4L=ON \
+    -D ENABLE_NEON=ON \
+    -D WITH_NEON=ON \
+    -D WITH_TBB=ON \
+    -D BUILD_TBB=ON \
+    -D BUILD_TIFF=ON \
+    -D WITH_TIFF=ON \
+    -D BUILD_PNG=ON \
+    -D WITH_PNG=ON \
+    -D BUILD_FFMPEG=ON \
+    -D WITH_FFMPEG=ON \
+	../opencv-3.1.0
 
 RUN cd /home/code/build \
-	&& make -j8
+	&& make -j33
+
+#RUN cd /home/code/build \
+#	&& make -j33 package
 
 RUN cd /home/code/build \
-	&& make -j8 package
+	&& make -j33 install
 
+RUN rm -rf /home/code/
 
 RUN [ "cross-build-end" ]
