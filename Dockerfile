@@ -4,7 +4,7 @@ RUN [ "cross-build-start" ]
 
 RUN export NPROC=$(nproc --all)
 # build tools
-RUN apt-get update && apt-get install -y \
+RUN apt-get update && apt-get install -y --no-install-recommends \
 	build-essential \
 	cmake \
 	pkg-config \
@@ -15,7 +15,7 @@ RUN apt-get update && apt-get install -y \
 # Image format support:
 # JPEG, TIFF, JPEG2000, PNG
 # GUI Framework: gtk GUI framework
-RUN apt-get install -y \
+RUN apt-get install -y --no-install-recommends \
 	libjpeg-dev \
 	libtiff5-dev \
 	libjasper-dev \
@@ -23,12 +23,12 @@ RUN apt-get install -y \
 	libgtk2.0-dev
 
 # OpenGL extension to GTK (optional)
-RUN apt-get install -y \
+RUN apt-get install -y --no-install-recommends \
 	libgtkglext1-dev
 
 # Video Driver
 # video4linux device driver for video capture
-RUN apt-get install -y \
+RUN apt-get install -y --no-install-recommends \
 	libv4l-dev \
 	libv4l-0 \
 	v4l-utils
@@ -36,7 +36,7 @@ RUN apt-get install -y \
 # AUDIO / VIDEO CODECS:
 # ffmpeg libraries (optional but recommended)
 # xvid and x264 codecs (optional)
-RUN apt-get install -y \
+RUN apt-get install -y --no-install-recommends \
 	libavcodec-dev \
 	libavformat-dev \
 	libswscale-dev \
@@ -65,12 +65,12 @@ RUN mkdir -p /home/code/ \
 #	&& ln -s /usr/include/libavresample/* /usr/include/ffmpeg/
 
 # Audio MP3, AAC encoding codecs (optional)
-RUN apt-get install -y \
+RUN apt-get install -y --no-install-recommends \
     libmp3lame-dev
     #libfaac-dev
 
 # gstreamer (optional) multimedia framework
-RUN apt-get install -y \
+RUN apt-get install -y --no-install-recommends \
 	libgstreamer1.0-0-dbg \
 	libgstreamer1.0-0 \
 	libgstreamer1.0-dev \
@@ -86,34 +86,34 @@ RUN apt-get install -y \
 # Speech CODECs
 
 # Adaptive Multi Rate codec (Wide band and Narrow band) (optional)
-RUN apt-get install -y \
-	libopencore-amrnb-dev \
-	libopencore-amrwb-dev
+#RUN apt-get install -y --no-install-recommends \
+#	libopencore-amrnb-dev \
+#	libopencore-amrwb-dev
 
 # 1394 FireWire / iLink support:
 # FireWire support (optional)
-RUN apt-get install -y \
-	libdc1394-22 \
-	libdc1394-22-dev
+#RUN apt-get install -y \
+#	libdc1394-22 \
+#	libdc1394-22-dev
 
 # Optimizations:
 
 # TBB Multi-core / multi-processor framework (optional but recommended)
-RUN apt-get install -y \
+RUN apt-get install -y --no-install-recommends \
 	libtbb-dev
 
 # ATLAS Automatically Tuned Linear Algebra Software; optimized version of BLAS and LAPACK
-RUN apt-get install -y \
+RUN apt-get install -y --no-install-recommends \
 	libatlas-base-dev
 
 # PThread
-RUN apt-get install -y \
+RUN apt-get install -y --no-install-recommends \
 	libpthread-stubs0-dev \
 	libevent-pthreads-2.0-5
 
 # Python bindings
 # python dev library
-RUN apt-get install -y \
+RUN apt-get install -y --no-install-recommends \
 	python2.7-dev
 
 # install -y PIP
@@ -121,11 +121,11 @@ RUN wget https://bootstrap.pypa.io/get-pip.py \
 	&& python get-pip.py
 
 # GNU Fortran compiler, used to optimize SciPy code
-RUN apt-get install -y \
+RUN apt-get install -y --no-install-recommends \
 	gfortran
 
 # Python bindings dependencies
-RUN apt-get install -y \
+RUN apt-get install -y --no-install-recommends \
 	python-numpy \
 	python-scipy \
 	python-matplotlib
@@ -201,5 +201,8 @@ RUN cd /home/code/build \
 	&& make -j${NPROC} \
 	&& make -j${NPROC} package \
 	&& make -j${NPROC} install
+
+RUN cd /home/code \
+	&& rm -rf *
 
 RUN [ "cross-build-end" ]
