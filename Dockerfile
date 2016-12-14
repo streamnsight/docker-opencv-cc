@@ -2,7 +2,6 @@ FROM resin/armv7hf-debian-qemu
 
 RUN [ "cross-build-start" ]
 
-RUN export NPROC=$(nproc --all)
 # build tools
 RUN apt-get update && apt-get install -y --no-install-recommends \
 	build-essential \
@@ -56,7 +55,7 @@ RUN mkdir -p /home/code/ \
 	&& mkdir build \
 	&& cd build \
 	&& ../configure CPPFLAGS="-O3 -pipe -fPIC -mfpu=neon -mfloat-abi=hard" \
-	&& make -j${NPROC} \
+	&& make -j$(nproc --all) \
 	&& make install
 
 #RUN mkdir -p /usr/include/ffmpeg \
@@ -198,11 +197,38 @@ RUN cd /home/code/ \
     ../opencv-3.1.0
 
 RUN cd /home/code/build \
-	&& make -j${NPROC} \
-	&& make -j${NPROC} package \
-	&& make -j${NPROC} install
+    && export NPROC=$(nproc --all) \
+	&& make -j$NPROC \
+	&& make -j$NPROC package \
+	&& make -j$NPROC install \
+	&& mv *.tar.gz ../ \
+	&& cd ../ \
+	&& rm -rf opencv-3.1.0 \
+	&& rm -rf opencv_contrib-3.1.0 \
+	&& rm -rf build
 
-RUN cd /home/code \
-	&& rm -rf *
+#RUN apt-get remove --purge \
+#    cmake-curses-gui \
+#    libjpeg-dev \
+#	libtiff5-dev \
+#	libjasper-dev \
+#	libpng12-dev \
+#	libgtk2.0-dev \
+#	libgtkglext1-dev \
+#	libv4l-dev \
+#	libavcodec-dev \
+#	libavformat-dev \
+#	libswscale-dev \
+#	libxvidcore-dev \
+#	libx264-dev \
+#	libmp3lame-dev \
+#	libgstreamer1.0-0-dbg \
+#	libgstreamer1.0-dev \
+#	libgstreamer-plugins-base1.0-dev \
+#	libtbb-dev \
+#	libatlas-base-dev \
+#   && apt-get autoremove
+RUN apt-get clean autoclean \
+    && apt-get autoremove -y
 
 RUN [ "cross-build-end" ]
